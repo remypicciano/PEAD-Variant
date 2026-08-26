@@ -27,8 +27,8 @@ class Portfolio:
         self.positions = []
         self.history = []
 
-    def _get_trade_size(self) -> float:
-        return self.cash * POSITION_SIZE
+    def _get_trade_size(self, equity: float) -> float:
+        return min(equity * POSITION_SIZE, self.cash) # never allocate more than available cash
 
     def _open_positions(self, trade): 
         capital_allocated = self._get_trade_size()
