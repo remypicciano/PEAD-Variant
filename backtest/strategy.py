@@ -23,7 +23,7 @@ class Strategy:
         self.events = events
 
     def _get_entry_exit(self, ticker: str, confirmation_date: pd.Timestamp) -> tuple[pd.Timestamp, pd.Timestamp] | None:
-        ticker_prices = [self.prices["ticker"].str.startswith(ticker)].copy()
+        ticker_prices = self.prices["ticker"].str.startswith(ticker).copy()
         ticker_prices = ticker_prices.sort_values("date")
 
         trading_dates = ticker_prices["date"].drop_duplicates().reset_index(drop=True)
