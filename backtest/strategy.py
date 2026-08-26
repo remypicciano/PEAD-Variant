@@ -56,4 +56,16 @@ class Strategy:
         else: # No signal 
             return None 
 
-        
+        dates = self._get_entry_exit(event["ticker"], event["next_date"])
+        if dates is None: 
+            return None
+        entry_date, exit_date = dates 
+
+        return Signal(
+            ticker=event["ticker"],
+            event_date=event["earnings_date"],
+            market_timing = event["market_timing"],
+            eps_surprise=eps_surprise, 
+            entry_date=entry_date,
+            exit_date=exit_date,
+            )
