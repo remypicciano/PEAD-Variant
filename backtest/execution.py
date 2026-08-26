@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from datetime import date 
 from strategy import Strategy
 from strategy import Signal
+from events import EventData
 
 import pandas as pd 
 
@@ -57,10 +58,10 @@ class Execute:
             exit_price=exit_price,
             percent_return=percent_return
         )
-    def execute_all(self, signal: list[Signal]) -> list[Trade]: # list of signals
+    def execute_all(self, signals: list[Signal]) -> list[Trade]: # list of signals
         trades = []
 
-        for signal in Signal: 
+        for signal in signals: 
             trade = self.execute(signal)
 
             if trade is not None: 
