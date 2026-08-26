@@ -13,13 +13,13 @@ class Trade:
     ticker: str
     direction: str
 
-    event_date = pd.Timestamp
+    event_date: pd.Timestamp
 
-    entry_date = pd.Timestamp
-    entry_price = float
+    entry_date: pd.Timestamp
+    entry_price: float
 
-    exit_date = pd.Timestamp
-    exit_price = float
+    exit_date: pd.Timestamp
+    exit_price: float
 
     percent_return: float
 
