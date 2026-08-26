@@ -17,10 +17,12 @@ class Position:
 
 # Better to return a full dataframe with ticker and daily prices until the exit date
 class Portfolio: 
-    def __init__(self, trades: list[Trade], starting_capital: float = STARTING_CAPITAL):
+    def __init__(self, prices: pd.DataFrame, trades: list[Trade], starting_capital: float = STARTING_CAPITAL):
         self.starting_capital = starting_capital
         self.cash = starting_capital
+
         self.trades = trades
+        self.prices = prices
 
         self.positions = []
         self.history = []
