@@ -23,13 +23,13 @@ class Strategy:
         self.events = events
 
     def _get_entry_exit(self, ticker: str, confirmation_date: pd.Timestamp) -> tuple[pd.Timestamp, pd.Timestamp] | None:
-        ticker_prices = self.prices["ticker"].str.startswith(ticker).copy()
+        ticker_prices = self.prices[self.prices["ticker"].str.startswith(ticker)].copy()
         ticker_prices = ticker_prices.sort_values("date")
 
         trading_dates = ticker_prices["date"].drop_duplicates().reset_index(drop=True)
 
         confirmation_date = confirmation_date.tz_localize(None) if confirmation_date.tzinfo else confirmation_date
-        confirmation_position = trading_dates.searcahsorted(confirmation_date)
+        confirmation_position = trading_dates.searchsorted(confirmation_date)
 
         entry_position = confirmation_position + 1 # day after movement
         exit_position = entry_position + HOLDING_PERIOD - 1
