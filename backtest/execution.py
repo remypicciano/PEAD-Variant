@@ -51,7 +51,8 @@ class Execute:
         percent_return = ((exit_price - entry_price)/entry_price)*100
         return Trade(
             ticker=signal.ticker,
-            direction=signal.direction, 
+            direction=signal.direction,
+            event_date=signal.event_date, 
             entry_date=signal.entry_date,
             exit_date=signal.exit_date,
             entry_price=entry_price,
