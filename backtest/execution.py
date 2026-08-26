@@ -48,7 +48,10 @@ class Execute:
         if entry_price is None or exit_price is None: 
             return None
 
-        percent_return = ((exit_price - entry_price)/entry_price)*100
+        if signal.direction == "LONG":
+            percent_return = ((exit_price - entry_price)/entry_price)*100
+        else: 
+            percent_return = ((entry_price - exit_price)/entry_price)*100
         return Trade(
             ticker=signal.ticker,
             direction=signal.direction,
