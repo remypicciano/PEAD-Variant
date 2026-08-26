@@ -64,6 +64,7 @@ class Strategy:
         return Signal(
             ticker=event["ticker"],
             event_date=event["earnings_date"],
+            direction=direction,
             market_timing = event["market_timing"],
             eps_surprise=eps_surprise, 
             entry_date=entry_date,
