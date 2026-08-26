@@ -20,7 +20,7 @@ class Trade:
     exit_date = pd.Timestamp
     exit_price = float
 
-    return_percent: float
+    percent_return: float
 
 class Execute: 
     def __init__(self, prices: pd.DataFrame, signals: list[Signal]):
@@ -40,3 +40,30 @@ class Execute:
         exit_price = exit.iloc[0]["close"]
 
         return entry_price, exit_price
+
+    def execute(self, signal: Signal) -> Trade | None: # only execute trade on ONE signal
+        entry_price, exit_price = self._get_exec_price(signal)
+
+        if entry_price is None or exit_price is None: 
+            return None
+
+        percent_return = ((exit_price - entry_price)/entry_price)*100
+        return Trade(
+            ticker=signal.ticker,
+            direction=signal.direction, 
+            entry_date=signal.entry_date,
+            exit_date=signal.exit_date,
+            entry_price=entry_price,
+            exit_price=exit_price,
+            percent_return=percent_return
+        )
+    def execute_all(self, signal: list[Signal]) -> list[Trade]: # list of signals
+        trades = []
+
+        for signal in Signal: 
+            trade = self.execute(signal)
+
+            if trade is not None: 
+                trades.append(trade)
+
+        return trades
