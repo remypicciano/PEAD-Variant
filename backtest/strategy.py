@@ -78,4 +78,4 @@ class Strategy:
             if signal is not None: 
                 signals.append(signal)
 
-            return signals 
+        return signals 
