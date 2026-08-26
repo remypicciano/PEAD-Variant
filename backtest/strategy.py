@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from datetime import date 
 import pandas as pd 
 
+HOLDING_PERIOD = 60
 
 @dataclass
 class Signal: 
