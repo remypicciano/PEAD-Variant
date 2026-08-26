@@ -51,7 +51,7 @@ class Strategy:
 
         if eps_surprise > 0 and next_close > previous_close: # If EPS is positive and if the day after earnings call is bullish
             direction = "LONG"
-        if eps_surprise < 0 and next_close < previous_close: # vice versa
+        elif eps_surprise < 0 and next_close < previous_close: # vice versa
             direction = "SHORT"
         else: # No signal 
             return None 
