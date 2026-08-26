@@ -4,10 +4,10 @@ from dataclasses import dataclass
 from datetime import date 
 import pandas as pd 
 
-HOLDING_PERIOD = 60
+HOLDING_PERIOD = 60 # temporary
 
 @dataclass
-class Signal: 
+class Signal: # signal structure for execution handling 
     ticker: str
     event_date: pd.Timestamp
     direction: str # maybe bool at some point?
@@ -69,3 +69,13 @@ class Strategy:
             entry_date=entry_date,
             exit_date=exit_date,
             )
+    def build(self) -> list[Signal]:
+        signals = []
+
+        for _, event in self.events.iterrows():
+            signal = self._eval_event(event)
+
+            if signal is not None: 
+                signals.append(signal)
+
+            return signals 
