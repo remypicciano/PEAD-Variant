@@ -41,3 +41,19 @@ class Strategy:
         exit_date = trading_dates.iloc[exit_position]
 
         return entry_date, exit_date
+
+    def _eval_event(self, event: pd.Series) -> Signal | None:
+        eps_surprise = event["surprise_percent"]
+        previous_close = event["previous_close"]
+        next_close = event["next_close"]
+
+        # This is the actual super simple strategy. 
+
+        if eps_surprise > 0 and next_close > previous_close: # If EPS is positive and if day after earnings call is bullish
+            direction = "LONG"
+        if eps_surprise < 0 and next_close < previous_close: # vice versa
+            direction = "SHORT"
+        else: # No signal 
+            return None 
+
+        
