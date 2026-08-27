@@ -14,6 +14,8 @@ class Position:
     entry_price: float 
     exit_price: float
     capital_allocated: float
+    percent_return: float
+    dollar_return: float
 
 # Better to return a full dataframe with ticker and daily prices until the exit date
 class Portfolio: 
@@ -30,9 +32,11 @@ class Portfolio:
     def _get_trade_size(self, equity: float) -> float:
         return min(equity * POSITION_SIZE, self.cash) # never allocate more than available cash
 
-    def _open_positions(self, trade): 
-        capital_allocated = self._get_trade_size()
+    def _open_positions(self, trade: Trade, equity: float): 
+        capital_allocated = self._get_trade_size(equity)
         self.cash -= capital_allocated # subtract to get actual cash on hand afer trade 
+
+
 
         dollar_return = capital_allocated * (trade.percent_return / 100)
 
@@ -61,6 +65,6 @@ class Portfolio:
             stock_return = (current_price-position.entry_price)/position.entry_price
 
             if position.direction == "SHORT":
-                stock_return *= -1
+                stock_return *= -1 # just make the return positive
 
             return position.capital_allocated * (1 + stock_return) 
