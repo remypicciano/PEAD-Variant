@@ -32,7 +32,7 @@ class Portfolio:
     def _get_trade_size(self, equity: float) -> float:
         return min(equity * POSITION_SIZE, self.cash) # never allocate more than available cash
 
-    def _open_positions(self, trade: Trade, equity: float): 
+    def _open_position(self, trade: Trade, equity: float): 
         capital_allocated = self._get_trade_size(equity)
         self.cash -= capital_allocated # subtract to get actual cash on hand afer trade 
 
@@ -48,9 +48,10 @@ class Portfolio:
             entry_price=trade.entry_price,
             exit_price=trade.exit_price,
             capital_allocated=capital_allocated,
+            percent_return=trade.percent_return,
             dollar_return=dollar_return
-        )
-        self.positions.append(position) # don't return since we pend to self.positions
+            )
+        self.positions.append(position) # don't return since we write directly to self.positions
 
         def _get_price(self, ticker: str, date: pd.Timestamp) -> float | None:
             ticker_prices = self.prices[self.prices["ticker"].str.startswith(ticker)]
@@ -68,3 +69,29 @@ class Portfolio:
                 stock_return *= -1 # just make the return positive
 
             return position.capital_allocated * (1 + stock_return) 
+
+        def build(self) -> pd.DataFrame: 
+            history = [] # historical daily returns/movement for graphing later on 
+
+            trading_dates = (self.prices["date"].dropna().sort_values().reset_index(drop=True))
+
+            trades_by_date = {}
+
+            for trades in self.trades:
+                trades_by_date.setdefault(trade.entry_price, []).append(trade)
+
+            for current_date in trading_dates:
+                invested = 0.0 
+
+                for position in self.positions: 
+                    if current_date < position.entry_date: 
+                        continue
+
+                    price = self._get_price(position.ticker, current_date)
+
+                    if price is not None: 
+                        invested += self._position_value(position, price)
+
+                    equity = self.cash + invested
+
+                    
