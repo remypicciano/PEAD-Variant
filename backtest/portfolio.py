@@ -17,7 +17,6 @@ class Position:
     exit_price: float
     capital_allocated: float
     percent_return: float
-    dollar_return: float
 
 
 # Better to return a full dataframe with ticker and daily prices until the exit date
@@ -46,8 +45,7 @@ class Portfolio:
             entry_price=trade.entry_price,
             exit_price=trade.exit_price,
             capital_allocated=capital_allocated,
-            percent_return=trade.percent_return,
-            dollar_return=dollar_return
+            percent_return=trade.percent_return
         )
 
         self.positions.append(position) # don't return since we write directly to self.positions
@@ -138,12 +136,15 @@ class Portfolio:
             else:
                 daily_return = 0.0
 
+            net_return = (equity - self.starting_capital)/self.starting_capital
+
             history.append({
                 "date": current_date,
                 "cash": self.cash,
                 "invested": invested,
                 "equity": equity,
                 "daily_return": daily_return,
+                "net_return": net_return,
                 "open_positions": len(self.positions)
             })
 
