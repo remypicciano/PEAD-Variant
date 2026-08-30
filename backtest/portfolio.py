@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from execution import Trade
 import pandas as pd
 
-STARTING_CAPITAL = 200_000
+STARTING_CAPITAL = 100_000
 POSITION_SIZE = 0.02 # in Percent: so 2% here
 
 ## ** ALERT ** ## HUGE ISSUE: RUNNING PORTFOLIO.BUILD() TWICE RETURNS TWO DIFFERENT RESULTS, WITH DIFFERENT AMOUNTS OF EVENTS, SIGNALS, TRADES, AND A DIFFERENT RETURN AMOUNT
@@ -29,7 +29,7 @@ class Portfolio:
         self.positions = []
         self.history = []
         self.price_calls = 0
-        self.price_lookup = prices.set_index(["ticker", "date"])["close"]
+        self.price_lookup = prices.assign(ticker=prices["ticker"].str.removesuffix(".US")).set_index(["ticker", "date"])["close"]
 
     def _get_trade_size(self, equity: float) -> float:
         return min(equity * POSITION_SIZE, self.cash) # never allocate more than available cash
