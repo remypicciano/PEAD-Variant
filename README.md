@@ -14,7 +14,7 @@ The current release is a **BETA**. This project is far from a finished trading s
 
 ## Documentation
 
-- [`STRATEGY.md`](STRATEGY.md) — Strategy design; signals; future development
+- [`STRATEGY.md`](docs/STRATEGY.md) — Strategy design; signals; future development
 - [`METHODOLOGY.md`](METHODOLOGY.md) — Backtesting methodology
 - [`RESULTS.md`](RESULTS.md) — Results among versions and testing
 - [`LIMITATIONS.md`](LIMITATIONS.md) — Brief limitations
