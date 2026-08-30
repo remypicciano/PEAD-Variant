@@ -11,16 +11,37 @@ from pathlib import Path
 import pandas as pd
 import yfinance as yf
 import json
+import time
 
 
 PROJECT_DIR = Path(__file__).resolve().parent.parent
 STOOQ_DIR = Path(__file__).resolve().parent / "data" / "stooq"
+EARNINGS_CACHE_DIR = Path(__file__).resolve().parent / "data" / "earnings_cache"
 
-STOCKS = ["AAPL", "MSFT", "GOOG", "AMZN", "TSLA"]
+# STOCKS = ["AAPL", "MSFT", "GOOG", "AMZN", "TSLA", "THG"]
+# Note: Tickers containing periods (e.g., BRK.B, BF.B) are formatted with hyphens (BRK-B) 
+# as required by most financial APIs like yfinance.
+
+STOCKS = [
+    "AAON", "ABG", "ACIW", "ADC", "ADEA",
+    "AIT", "ALRM", "AMN", "ANF", "APOG",
+    "ARCB", "ARLO", "EFOR", "BCPC",
+    "BCO", "BDC", "BGS", "BKH", "BOOT",
+    "CALM", "CARG", "CCOI", "CENTA", "CHEF",
+    "CNXN", "CVCO", "CVLT", "DCI", "DIOD",
+    "DNOW", "EAT", "EEFT", "ENSG", "EPR",
+    "EXPO", "FCFS", "FSS", "GATX", "GBCI",
+    "GEO", "GHC", "HCC", "HNI",
+    "IBOC", "KFY", "MGEE", "MRCY", "UFPI"
+]
+
+
 START_DATE = date(1980, 1, 1)
-END_DATE = date(2025, 12, 31)
+END_DATE = date(2026, 12, 31)
 LOOKBACK_DAYS = 10
 LOOKFORWARD_DAYS = 20
+EARNINGS_FETCH_RETRIES = 3
+EARNINGS_FETCH_DELAY = 2
 
 
 ## Data Handling of Stooq Files – Building Index for Reference ##
@@ -150,7 +171,26 @@ class MarketData:  # What data do I want?
 
         return df
 
+    def _fetch_earnings_page(self, yf_ticker: yf.Ticker, offset: int) -> pd.DataFrame | None:
+        df = None
+
+        for attempt in range(EARNINGS_FETCH_RETRIES):
+            df = yf_ticker.get_earnings_dates(limit=100, offset=offset)
+
+            if df is not None and not df.empty:
+                return df
+
+            print(f"Retrying {yf_ticker.ticker}, offset={offset} (attempt {attempt + 1}/{EARNINGS_FETCH_RETRIES})...")
+            time.sleep(EARNINGS_FETCH_DELAY * (attempt + 1))
+
+        return df
+
     def _get_earnings(self, ticker: str) -> pd.DataFrame:
+        cache_path = EARNINGS_CACHE_DIR / f"{ticker}.csv"
+
+        if cache_path.exists():
+            return pd.read_csv(cache_path, index_col=0, parse_dates=True)
+
         yf_ticker = yf.Ticker(ticker)
 
         frames = []
@@ -160,10 +200,7 @@ class MarketData:  # What data do I want?
         while True:
             print(f"Requesting {ticker}, offset={offset}...")
 
-            df = yf_ticker.get_earnings_dates(
-                limit=100,
-                offset=offset,
-            )
+            df = self._fetch_earnings_page(yf_ticker, offset)
 
             # Explicitly distinguish None from an empty DataFrame
             if df is None:
@@ -203,13 +240,18 @@ class MarketData:  # What data do I want?
                 f"{self.config.start_date}. Earliest available: {earliest}."
             )
 
+        EARNINGS_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        result.to_csv(cache_path)
+
         return result
 
     def earnings(self) -> pd.DataFrame:
         frames = []
 
         for ticker in self.stocks:
+            print(f"Starting earnings retrieval for {ticker}")
             df = self._get_earnings(ticker)
+            print(f"Finished earnings retrieval for {ticker}: {len(df)} rows")
 
             if df.empty:
                 print(f"WARNING: {ticker} will be excluded from the earnings dataset.")
