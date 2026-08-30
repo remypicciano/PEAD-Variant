@@ -28,6 +28,8 @@ class Portfolio:
         self.prices = prices
         self.positions = []
         self.history = []
+        self.price_calls = 0
+        self.price_lookup = prices.set_index(["ticker", "date"])["close"]
 
     def _get_trade_size(self, equity: float) -> float:
         return min(equity * POSITION_SIZE, self.cash) # never allocate more than available cash
@@ -51,13 +53,14 @@ class Portfolio:
         self.positions.append(position) # don't return since we write directly to self.positions
 
     def _get_price(self, ticker: str, date: pd.Timestamp) -> float | None:
-        ticker_prices = self.prices[self.prices["ticker"].str.startswith(ticker)]
-        price = ticker_prices[ticker_prices["date"] == date]
+        self.price_calls += 1
+        print(f"Number of price lookups: {self.price_calls}")
 
-        if price.empty:
+        try: 
+            return float(self.price_lookup.loc[(ticker, date)])
+        except KeyError:
             return None
 
-        return float(price.iloc[0]["close"])
 
     def _position_value(self, position: Position, current_price: float) -> float:
         stock_return = (current_price - position.entry_price) / position.entry_price
